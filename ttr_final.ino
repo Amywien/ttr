@@ -3,8 +3,8 @@
 // there are 3 sets of buttons with 3 button each (9 in total)
 
 #define B1_PIN A0
-#define B2_PIN A1
-#define B3_PIN A2
+#define B2_PIN A3
+#define B3_PIN A4
 
 // reset button
 #define R_PIN A5
@@ -56,7 +56,6 @@ CRGB leds[NUM_LEDS];
 
 
 void setup() {
-  Serial.begin(9600);
   FastLED.addLeds <WS2812, LED_PIN, GRB>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(25);
 }
@@ -105,8 +104,8 @@ void loop()
 
   // reset button
   resetButton = analogRead(R_PIN);
-  if (resetButton < 1500 &&  resetButton > 800) {
-    TurnOffLED(0, 108);
+  if (resetButton < 1500 &&  resetButton > 300) {
+    TurnOffLED(0, NUM_LEDS);
     for( int i = 1; i < 9; i++) {
       tiles[idx].current_color = 0;
     }
