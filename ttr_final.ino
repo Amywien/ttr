@@ -4,10 +4,10 @@
 
 #define B1_PIN A0
 #define B2_PIN A3
-#define B3_PIN A4
+#define B3_PIN A5
 
 // reset button
-#define R_PIN A5
+#define R_PIN A6
 
 int buttonLineValue1 = 0;
 int buttonLineValue2 = 0;
@@ -18,7 +18,7 @@ int resetButton = 0;
 int lastState = 0;
 
 // signal from button 1.1 is approx 126, for 1.2 is 511 and 1.3 is 1022, same for 2.x and 3.x
-const int buttonResistanceBounds[] = {100, 300, 800, 1200};                
+const int buttonResistanceBounds[] = {10, 100, 300, 800, 1200};                
 
 // tile state counters and matching table
 
@@ -26,10 +26,10 @@ int idx = 0;
 
 struct tile_t
 {
-    const uint8_t   tile_id;
-    uint8_t         current_color;
-    const uint8_t   first_led_id;
-    const uint8_t   last_led_id;
+    const int   tile_id;
+    int         current_color;
+    const int   first_led_id;
+    const int   last_led_id;
 };
 
 
@@ -49,7 +49,7 @@ struct tile_t     tiles[] =
 
 // LED lights settings
 #define NUM_LEDS 108 
-#define LED_PIN 13
+#define LED_PIN 3
 CRGB leds[NUM_LEDS];   
 
 
@@ -68,7 +68,7 @@ void loop()
   idx = GetTileID(buttonLineValue1, 0, lastState);
   if (idx > 0) {
     
-    if (tiles[idx].current_color % 2 == 0 )
+    if (tiles[idx].current_color % 2 == 1 )
       MakeBlue(tiles[idx].first_led_id, tiles[idx].last_led_id);
     else
       MakeRed(tiles[idx].first_led_id, tiles[idx].last_led_id);
@@ -80,7 +80,7 @@ void loop()
   idx = GetTileID(buttonLineValue2, 1, lastState);
   if (idx > 0) {
     
-    if (tiles[idx].current_color % 2 == 0 )
+    if (tiles[idx].current_color % 2 == 1 )
       MakeBlue(tiles[idx].first_led_id, tiles[idx].last_led_id);
     else
       MakeRed(tiles[idx].first_led_id, tiles[idx].last_led_id);
@@ -92,7 +92,7 @@ void loop()
   idx = GetTileID(buttonLineValue3, 2, lastState);
   if (idx > 0) {
     
-    if (tiles[idx].current_color % 2 == 0 )
+    if (tiles[idx].current_color % 2 == 1 )
       MakeBlue(tiles[idx].first_led_id, tiles[idx].last_led_id);
     else
       MakeRed(tiles[idx].first_led_id, tiles[idx].last_led_id);
@@ -104,22 +104,22 @@ void loop()
 
   // reset button
   resetButton = analogRead(R_PIN);
-  if (resetButton < 1500 &&  resetButton > 300) {
-    TurnOffLED(0, NUM_LEDS);
-    for( int i = 1; i < 9; i++) {
-      tiles[idx].current_color = 0;
+  if (resetButton > buttonResistanceBounds[3]) {
+    for( int i = 1; i < 10; i++) {
+      tiles[i].current_color = 0;
     }
+    TurnOffLED(0, NUM_LEDS);
   }
   
 }
 
 int GetTileID(int buttonLineValue, int line_id, int lastState) {
     int idx = 0;
-    if (buttonLineValue < buttonResistanceBounds[1] &&  buttonLineValue > buttonResistanceBounds[0] && lastState < 10) 
+    if (buttonLineValue < buttonResistanceBounds[2] &&  buttonLineValue > buttonResistanceBounds[1] && lastState < buttonResistanceBounds[0]) 
       idx = 1 + line_id * 3;   
-    else if (buttonLineValue < buttonResistanceBounds[2] &&  buttonLineValue > buttonResistanceBounds[1] && lastState < 10)
+    else if (buttonLineValue < buttonResistanceBounds[3] &&  buttonLineValue > buttonResistanceBounds[2] && lastState < buttonResistanceBounds[0])
       idx = 2 + line_id * 3;  
-    else if (buttonLineValue < buttonResistanceBounds[3] &&  buttonLineValue > buttonResistanceBounds[2] && lastState < 10)
+    else if (buttonLineValue < buttonResistanceBounds[4] &&  buttonLineValue > buttonResistanceBounds[3] && lastState < buttonResistanceBounds[0])
       idx = 3 + line_id * 3;  
     return idx; 
 }
